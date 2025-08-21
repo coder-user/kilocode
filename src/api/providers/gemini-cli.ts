@@ -1,3 +1,4 @@
+import * as vscode from "vscode"
 import type { Anthropic } from "@anthropic-ai/sdk"
 import { OAuth2Client } from "google-auth-library"
 import * as fs from "fs/promises"
@@ -6,7 +7,13 @@ import * as os from "os"
 import axios from "axios"
 import dotenvx from "@dotenvx/dotenvx"
 
-import { type ModelInfo, type GeminiCliModelId, geminiCliDefaultModelId, geminiCliModels } from "@roo-code/types"
+import {
+	type ModelInfo,
+	type GeminiCliModelId,
+	geminiCliDefaultModelId,
+	geminiCliModels,
+	type GeminiCliOptions,
+} from "@roo-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 import { t } from "../../i18n"
@@ -43,9 +50,19 @@ export class GeminiCliHandler extends BaseProvider implements SingleCompletionHa
 	constructor(options: ApiHandlerOptions) {
 		super()
 		this.options = options
-
 		// Initialize OAuth2 client
 		this.authClient = new OAuth2Client(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_REDIRECT_URI)
+
+		const config = vscode.workspace.getConfiguration("kilo-code.geminiCli")
+		const proxy = config.get<string>("proxy")
+
+		if (proxy) {
+			this.authClient.axios.defaults.proxy = {
+				host: new URL(proxy).hostname,
+				port: parseInt(new URL(proxy).port, 10),
+				protocol: new URL(proxy).protocol,
+			}
+		}
 	}
 
 	private async loadOAuthCredentials(): Promise<void> {
@@ -95,8 +112,8 @@ export class GeminiCliHandler extends BaseProvider implements SingleCompletionHa
 	}
 
 	/**
-	 * Call a Code Assist API endpoint
-	 */
+		* Call a Code Assist API endpoint
+		*/
 	private async callEndpoint(method: string, body: any, retryAuth: boolean = true): Promise<any> {
 		try {
 			const res = await this.authClient.request({

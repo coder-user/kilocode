@@ -575,6 +575,11 @@
 					"minimum": 0,
 					"maximum": 3600,
 					"description": "%settings.apiRequestTimeout.description%"
+				},
+				"kilo-code.geminiCli.proxy": {
+					"type": "string",
+					"default": "",
+					"description": "The HTTP proxy to use for Gemini CLI requests."
 				}
 			}
 		},

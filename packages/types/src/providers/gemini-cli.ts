@@ -4,7 +4,14 @@ import type { ModelInfo } from "../model.js"
 // Gemini CLI models with free tier pricing (all $0)
 export type GeminiCliModelId = keyof typeof geminiCliModels
 
-export const geminiCliDefaultModelId: GeminiCliModelId = "gemini-2.0-flash-001"
+export interface GeminiCliOptions {
+	/**
+	 * The HTTP proxy to use for requests.
+	 */
+	proxy?: string
+}
+
+export const geminiCliDefaultModelId: GeminiCliModelId = "gemini-2.5-pro"
 
 export const geminiCliModels = {
 	"gemini-2.0-flash-001": {
